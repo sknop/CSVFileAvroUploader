@@ -13,15 +13,15 @@ Description:
 
 Options:
 
-  -c, --config-file=<configFile>
-                        Kafka configuration file (required)
-  -f, --input-file=<inputFile>
-                        File from which to read
-      --topic=<topic>   Topic to write to
-  -k, --key-field=<keyField>
-                        If provided, use this column as the key
-  -h, --help            Show this help message and exit.
-  -V, --version         Print version information and exit.
+      -c, --config-file=<configFile>
+                            Kafka configuration file (required)
+      -f, --input-file=<inputFile>
+                            File from which to read
+          --topic=<topic>   Topic to write to
+      -k, --key-field=<keyField>
+                            If provided, use this column as the key
+      -h, --help            Show this help message and exit.
+      -V, --version         Print version information and exit.
 
   Set logging to "trace" to see every message being produced.
   
