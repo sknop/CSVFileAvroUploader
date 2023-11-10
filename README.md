@@ -16,8 +16,8 @@ Options:
       -c, --config-file=<configFile>
                             Kafka configuration file (required)
       -f, --input-file=<inputFile>
-                            File from which to read
-          --topic=<topic>   Topic to write to
+                            File from which to read (required)
+          --topic=<topic>   Topic to write to (required)
       -k, --key-field=<keyField>
                             If provided, use this column as the key
       -h, --help            Show this help message and exit.
