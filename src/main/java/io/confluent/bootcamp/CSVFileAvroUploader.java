@@ -35,10 +35,10 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     protected String configFile = null;
 
     @CommandLine.Option(names = {"-f", "--input-file"}, required = true,
-            description = "File from which to read")
+            description = "File from which to read (required)")
     private String inputFile = null;
 
-    @CommandLine.Option(names = {"--topic"}, required = true, description = "Topic to write to")
+    @CommandLine.Option(names = {"--topic"}, required = true, description = "Topic to write to (required)")
     private String topic;
 
     @CommandLine.Option(names = {"-k", "--key-field"}, description = "If provided, use this column as the key")
@@ -153,7 +153,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
         readConfigFile();
         readAndProcessInputFile();
 
