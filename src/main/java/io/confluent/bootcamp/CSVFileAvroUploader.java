@@ -49,7 +49,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
     private boolean keyFieldProvided = false;
 
-    protected Logger logger = LoggerFactory.getLogger(CSVFileAvroUploader.class);
+    static protected Logger logger = LoggerFactory.getLogger(CSVFileAvroUploader.class);
     private String[] headerEntries;
 
     private final Properties properties = new Properties();
@@ -169,7 +169,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
             new CommandLine(new CSVFileAvroUploader()).execute(args);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unexpected error", e);
             System.exit(1);
         }
     }
