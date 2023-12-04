@@ -44,6 +44,9 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     @CommandLine.Option(names = {"-k", "--key-field"}, description = "If provided, use this column as the key")
     private String keyField = null;
 
+    @CommandLine.Option(names = {"-s","--schema-name"}, required = true, description = "Name of the schema (required")
+    String schemaName = null; // package private for testing
+
     private boolean keyFieldProvided = false;
 
     protected Logger logger = LoggerFactory.getLogger(CSVFileAvroUploader.class);
@@ -112,7 +115,8 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                 }
                 
                 logger.trace("Key = {}, Record = {}", key, avroRecord);
-                ProducerRecord<Object, Object> record = keyFieldProvided ? new ProducerRecord<>(topic, key, avroRecord) :
+                ProducerRecord<Object, Object> record = keyFieldProvided ?
+                        new ProducerRecord<>(topic, key, avroRecord) :
                         new ProducerRecord<>(topic, avroRecord);
                 try {
                     producer.send(record);
@@ -138,7 +142,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
         StringBuilder locationSchemaBuilder =
                 new StringBuilder("{\"type\":\"record\"," +
-                                  "\"name\":\"location\"," +
+                                  "\"name\":\"" + schemaName + "\"," +
                                   "\"fields\":");
         locationSchemaBuilder.append("[");
 

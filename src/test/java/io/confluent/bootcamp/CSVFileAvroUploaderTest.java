@@ -11,6 +11,7 @@ class CSVFileAvroUploaderTest {
     @Test
     public void testProcessHeader() {
         String header = "header1,header2,header3";
+        uploader.schemaName = "location";
 
         String schema = uploader.processHeader(header);
         String expected = "{\"type\":\"record\",\"name\":\"location\",\"fields\":[{\"name\":\"header1\",\"type\":\"string\"},{\"name\":\"header2\",\"type\":\"string\"},{\"name\":\"header3\",\"type\":\"string\"}]}";
