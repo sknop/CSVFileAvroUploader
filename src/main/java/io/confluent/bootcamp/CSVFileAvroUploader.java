@@ -103,14 +103,16 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
             while (buffered.ready()) {
                 String line = buffered.readLine();
-                var values = line.split(",");
+                var values = line.split(",",-1);
 
                 String key = null;
                 GenericRecord avroRecord = new GenericData.Record(schema);
                 for (int index = 0; index < values.length; index++) {
-                    avroRecord.put(headerEntries[index], values[index]);
+                    logger.trace("Adding value {} for index {}", values[index], index);
+                    String value = values[index] == null ? "" : values[index];
+                    avroRecord.put(headerEntries[index], value);
                     if (keyField != null && !keyField.isEmpty() && headerEntries[index].equals(keyField)) {
-                        key = values[index];
+                        key = value;
                     }
                 }
                 
