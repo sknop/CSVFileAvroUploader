@@ -121,7 +121,14 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                         new ProducerRecord<>(topic, key, avroRecord) :
                         new ProducerRecord<>(topic, avroRecord);
                 try {
-                    producer.send(record);
+                    producer.send(record, (recordMetadata, e) -> {
+                        if (e != null) {
+                            logger.error("Failed to produce message", e);
+                        }
+                        else {
+                            logger.info("Produced {} at offset {} in partition {}", record, recordMetadata.offset(), recordMetadata.partition());
+                        }
+                    });
                 } catch (SerializationException e) {
                     logger.error("This should never happen: ", e);
                     throw new RuntimeException(e);
