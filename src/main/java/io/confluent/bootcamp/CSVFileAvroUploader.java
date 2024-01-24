@@ -13,9 +13,11 @@ import org.apache.kafka.common.serialization.VoidSerializer;
 import picocli.CommandLine;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,10 @@ import org.slf4j.LoggerFactory;
         parameterListHeading = "%nParameters:%n%n",
         optionListHeading    = "%nOptions:%n%n",
         mixinStandardHelpOptions = true,
-        sortOptions = false)
+        sortOptions = false,
+        versionProvider = Version.class,
+        description = "Upload CSV file in Avro format and create the schema from the first header entry"
+        )
 public class CSVFileAvroUploader implements Callable<Integer> {
     @CommandLine.Option(names = {"-c", "--config-file"}, required = true,
             description = "Kafka configuration file (required)")
@@ -46,6 +51,9 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
     @CommandLine.Option(names = {"-s","--schema-name"}, required = true, description = "Name of the schema (required")
     String schemaName = null; // package private for testing
+
+    @CommandLine.Option(names = {"--separator"}, description = "If provided, use this separator (default \",\"")
+    String separator = ",";
 
     private boolean keyFieldProvided = false;
 
@@ -89,6 +97,33 @@ public class CSVFileAvroUploader implements Callable<Integer> {
         }
     }
 
+    public static String[] splitCSVFile(String line) {
+        return line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+    }
+
+    public String quoteSeparator() {
+        return Pattern.quote(separator);
+    }
+
+    public static ArrayList<String> customSplitSpecific(String line)
+    {
+        ArrayList<String> words = new ArrayList<>();
+        boolean notInsideComma = true;
+        int start =0;
+        for(int i=0; i<line.length()-1; i++)
+        {
+            if(line.charAt(i)==',' && notInsideComma)
+            {
+                words.add(line.substring(start,i));
+                start = i+1;
+            }
+            else if(line.charAt(i)=='"')
+                notInsideComma=!notInsideComma;
+        }
+        words.add(line.substring(start));
+        return words;
+    }
+
     private void readAndProcessInputFile() {
         try (InputStream inputStream = new FileInputStream(inputFile);
              Reader reader = new InputStreamReader(inputStream);
@@ -103,7 +138,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
             while (buffered.ready()) {
                 String line = buffered.readLine();
-                var values = line.split(",",-1);
+                var values = line.split(quoteSeparator(),-1);
 
                 String key = null;
                 GenericRecord avroRecord = new GenericData.Record(schema);
@@ -147,7 +182,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     }
 
     String processHeader(String header) {
-        headerEntries = header.split(",");
+        headerEntries = header.split(quoteSeparator());
 
         StringBuilder locationSchemaBuilder =
                 new StringBuilder("{\"type\":\"record\"," +
