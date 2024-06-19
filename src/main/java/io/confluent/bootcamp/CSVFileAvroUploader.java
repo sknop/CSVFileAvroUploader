@@ -52,7 +52,10 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     @CommandLine.Option(names = {"-s","--schema-name"}, required = true, description = "Name of the schema (required")
     String schemaName = null; // package private for testing
 
-    @CommandLine.Option(names = {"--separator"}, description = "If provided, use this separator (default \",\"")
+    @CommandLine.Option(names = {"-n","--namespace"}, required = true, description = "Name of the namespace (required)")
+    String namespace = null;
+
+    @CommandLine.Option(names = {"--separator"}, description = "If provided, use this separator (default \",\")")
     String separator = ",";
 
     private boolean keyFieldProvided = false;
@@ -184,20 +187,21 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     String processHeader(String header) {
         headerEntries = header.split(quoteSeparator());
 
-        StringBuilder locationSchemaBuilder =
+        StringBuilder schemaBuilder =
                 new StringBuilder("{\"type\":\"record\"," +
                                   "\"name\":\"" + schemaName + "\"," +
+                                  "\"namespace\":\"" + namespace + "\"," +
                                   "\"fields\":");
-        locationSchemaBuilder.append("[");
+        schemaBuilder.append("[");
 
         String format = "{\"name\":\"%s\",\"type\":\"string\"}";
         var processedEntries = Arrays.stream(headerEntries).map(entry -> String.format(format, entry)).toArray(String[]::new);
-        locationSchemaBuilder.append(String.join(",", processedEntries));
+        schemaBuilder.append(String.join(",", processedEntries));
 
-        locationSchemaBuilder.append("]");
-        locationSchemaBuilder.append("}");
+        schemaBuilder.append("]");
+        schemaBuilder.append("}");
 
-        return locationSchemaBuilder.toString();
+        return schemaBuilder.toString();
     }
 
     @Override
