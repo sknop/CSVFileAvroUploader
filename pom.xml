@@ -10,11 +10,11 @@
 
     <properties>
         <java.version>11</java.version>
-        <confluent.version>7.5.1</confluent.version>
-        <kafka.version>3.5.1</kafka.version>
-        <avro.version>1.11.2</avro.version>
+        <confluent.version>7.6.1</confluent.version>
+        <kafka.version>3.7.0</kafka.version>
+        <avro.version>1.11.3</avro.version>
         <slf4j.version>2.0.5</slf4j.version>
-        <logback.version>1.4.5</logback.version>
+        <logback.version>1.4.14</logback.version>
         <junit.jupiter.version>5.9.2</junit.jupiter.version>
         <picocli.version>4.7.4</picocli.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
