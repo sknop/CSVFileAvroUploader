@@ -58,10 +58,15 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     @CommandLine.Option(names = {"--separator"}, description = "If provided, use this separator (default \",\")")
     String separator = ",";
 
+    @CommandLine.Option(names = {"-o", "--output-file"}, description = "Output file into which the results are written in JSON format")
+    String outputFile = null;
+
     boolean keyFieldProvided = false;
 
     static protected Logger logger = LoggerFactory.getLogger(CSVFileAvroUploader.class);
     private String[] headerEntries;
+
+    long lastOffset = 0;
 
     final Properties properties = new Properties();
 
@@ -164,6 +169,8 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                             logger.error("Failed to produce message", e);
                         }
                         else {
+                            lastOffset = recordMetadata.offset();
+
                             logger.info("Produced {} at offset {} in partition {}", record, recordMetadata.offset(), recordMetadata.partition());
                         }
                     });
@@ -175,6 +182,11 @@ public class CSVFileAvroUploader implements Callable<Integer> {
             producer.flush();
             producer.close();
 
+            if (outputFile != null) {
+                try(FileWriter fileWriter = new FileWriter(outputFile)) {
+                    fileWriter.write(String.format("{ \"offset\": %d }", lastOffset));
+                }
+            }
         }catch (FileNotFoundException e) {
             logger.error("Input file {} not found", inputFile);
             System.exit(1);

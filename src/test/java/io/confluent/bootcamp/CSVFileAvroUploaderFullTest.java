@@ -13,8 +13,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 import testcontainers.SchemaRegistryContainer;
 
-import java.io.File;
-import static org.junit.jupiter.api.Assertions.fail;
+import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class CSVFileAvroUploaderFullTest {
     private final CSVFileAvroUploader uploader = new CSVFileAvroUploader();
@@ -44,12 +45,14 @@ class CSVFileAvroUploaderFullTest {
     @Test
     void testUploader() {
         File testFile = new File("src/test/resources/test.csv");
+        File outputFile = new File("outputfile.json");
 
         uploader.namespace = "io.confluent.bootcamp.rails.schema";
         uploader.topic = "test-topic";
         uploader.inputFile = testFile.getAbsolutePath();
         uploader.keyField = "canx_reason_code";
         uploader.keyFieldProvided = true;
+        uploader.outputFile = outputFile.getAbsolutePath();
 
         uploader.properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         uploader.properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -61,5 +64,18 @@ class CSVFileAvroUploaderFullTest {
         } catch (Exception e) {
             fail("Should never throw an exception");
         }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(outputFile))) {
+            String line = reader.readLine();
+            assertEquals("{ \"offset\": 2 }", line);
+        }
+        catch (FileNotFoundException e) {
+            fail("Cannot find outputFile " + outputFile);
+        }
+        catch (IOException e) {
+            fail("IOException " + e);
+        }
+
+        assertTrue(outputFile.delete());
     }
 }
