@@ -6,16 +6,17 @@
 
     <groupId>io.confluent.bootcamp</groupId>
     <artifactId>CSVFileAvroUploader</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 
     <properties>
         <java.version>11</java.version>
-        <confluent.version>7.6.1</confluent.version>
-        <kafka.version>3.7.0</kafka.version>
-        <avro.version>1.11.3</avro.version>
-        <slf4j.version>2.0.5</slf4j.version>
-        <logback.version>1.4.14</logback.version>
+        <confluent.version>7.9.0</confluent.version>
+        <kafka.version>3.9.0</kafka.version>
+        <avro.version>1.11.4</avro.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <logback.version>1.5.6</logback.version>
         <junit.jupiter.version>5.9.2</junit.jupiter.version>
+        <testcontainer.version>1.20.6</testcontainer.version>
         <picocli.version>4.7.4</picocli.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -64,6 +65,18 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.3</version>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -118,6 +131,17 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <version>${testcontainer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainer.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

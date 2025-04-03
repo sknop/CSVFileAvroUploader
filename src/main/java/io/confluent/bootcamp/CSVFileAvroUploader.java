@@ -41,13 +41,13 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
     @CommandLine.Option(names = {"-f", "--input-file"}, required = true,
             description = "File from which to read (required)")
-    private String inputFile = null;
+    String inputFile = null;
 
     @CommandLine.Option(names = {"--topic"}, required = true, description = "Topic to write to (required)")
-    private String topic;
+    String topic;
 
     @CommandLine.Option(names = {"-k", "--key-field"}, description = "If provided, use this column as the key")
-    private String keyField = null;
+    String keyField = null;
 
     @CommandLine.Option(names = {"-s","--schema-name"}, required = true, description = "Name of the schema (required")
     String schemaName = null; // package private for testing
@@ -58,12 +58,12 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     @CommandLine.Option(names = {"--separator"}, description = "If provided, use this separator (default \",\")")
     String separator = ",";
 
-    private boolean keyFieldProvided = false;
+    boolean keyFieldProvided = false;
 
     static protected Logger logger = LoggerFactory.getLogger(CSVFileAvroUploader.class);
     private String[] headerEntries;
 
-    private final Properties properties = new Properties();
+    final Properties properties = new Properties();
 
     public void readConfigFile() {
         if (configFile != null) {
@@ -127,7 +127,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
         return words;
     }
 
-    private void readAndProcessInputFile() {
+    void readAndProcessInputFile() {
         try (InputStream inputStream = new FileInputStream(inputFile);
              Reader reader = new InputStreamReader(inputStream);
              BufferedReader buffered = new BufferedReader(reader)) {
