@@ -16,10 +16,9 @@ public class SchemaRegistryContainer extends GenericContainer<SchemaRegistryCont
     public SchemaRegistryContainer(final DockerImageName dockerImageName) {
         super(dockerImageName);
 
-        withExposedPorts(SCHEMA_REGISTRY_PORT);
-
-        withEnv("host.name", "schema-registry");
-        withEnv("SCHEMA_REGISTRY_HOST_NAME", "schema-registry");
+        this.withExposedPorts(SCHEMA_REGISTRY_PORT).
+        withEnv("host.name", "schema-registry").
+        withEnv("SCHEMA_REGISTRY_HOST_NAME", "schema-registry").
         withEnv("SCHEMA_REGISTRY_LISTENERS", "http://0.0.0.0:" + SCHEMA_REGISTRY_PORT);
     }
 
