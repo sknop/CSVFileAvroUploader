@@ -184,7 +184,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
 
             if (outputFile != null) {
                 try(FileWriter fileWriter = new FileWriter(outputFile)) {
-                    fileWriter.write(String.format("{ \"offset\": %d }", lastOffset));
+                    fileWriter.write(String.format("{ \"offset\": \"%d\" }", lastOffset));
                 }
             }
         }catch (FileNotFoundException e) {

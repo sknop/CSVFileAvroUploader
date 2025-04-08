@@ -67,7 +67,7 @@ class CSVFileAvroUploaderFullTest {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(outputFile))) {
             String line = reader.readLine();
-            assertEquals("{ \"offset\": 2 }", line);
+            assertEquals("{ \"offset\": \"2\" }", line);
         }
         catch (FileNotFoundException e) {
             fail("Cannot find outputFile " + outputFile);
