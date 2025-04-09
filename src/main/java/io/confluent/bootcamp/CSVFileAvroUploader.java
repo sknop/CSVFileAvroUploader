@@ -160,7 +160,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                     }
                 }
 
-                counter.increment();
+                logger.trace("Counter value (+) = {}", counter.increment());
 
                 logger.trace("Key = {}, Record = {}", key, avroRecord);
                 ProducerRecord<Object, Object> record = keyFieldProvided ?
@@ -173,7 +173,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                         }
                         else {
                             lastOffset = recordMetadata.offset();
-                            counter.decrement();
+                            logger.trace("Counter value (-) = {}", counter.decrement());
 
                             logger.info("Produced {} at offset {} in partition {}", record, recordMetadata.offset(), recordMetadata.partition());
                         }
