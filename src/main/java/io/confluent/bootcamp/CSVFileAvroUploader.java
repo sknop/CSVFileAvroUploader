@@ -69,7 +69,6 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     long lastOffset = 0;
 
     final Properties properties = new Properties();
-    final AtomicCounter counter = new AtomicCounter();
 
     public void readConfigFile() {
         if (configFile != null) {
@@ -160,8 +159,6 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                     }
                 }
 
-                logger.trace("Counter value (+) = {}", counter.increment());
-
                 logger.trace("Key = {}, Record = {}", key, avroRecord);
                 ProducerRecord<Object, Object> record = keyFieldProvided ?
                         new ProducerRecord<>(topic, key, avroRecord) :
@@ -173,7 +170,6 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                         }
                         else {
                             lastOffset = recordMetadata.offset();
-                            logger.trace("Counter value (-) = {}", counter.decrement());
 
                             logger.info("Produced {} at offset {} in partition {}", record, recordMetadata.offset(), recordMetadata.partition());
                         }
@@ -184,10 +180,6 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                 }
             }
             producer.flush();
-
-            while (counter.get() > 0) {
-                Thread.sleep(1);
-            }
 
             producer.close();
 
