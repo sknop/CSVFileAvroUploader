@@ -16,6 +16,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
     static protected Logger logger = LoggerFactory.getLogger(CSVFileAvroUploader.class);
     private String[] headerEntries;
 
-    long lastOffset = 0;
+    TreeMap<Integer, Long> lastOffset = new TreeMap<>();
 
     final Properties properties = new Properties();
 
@@ -169,9 +170,11 @@ public class CSVFileAvroUploader implements Callable<Integer> {
                             logger.error("Failed to produce message", e);
                         }
                         else {
-                            lastOffset = recordMetadata.offset();
+                            var offset = recordMetadata.offset();
+                            var partition = recordMetadata.partition();
+                            lastOffset.put(partition, offset);
 
-                            logger.info("Produced {} at offset {} in partition {}", record, recordMetadata.offset(), recordMetadata.partition());
+                            logger.info("Produced {} at offset {} in partition {}", record, offset, partition);
                         }
                     });
                 } catch (SerializationException e) {
@@ -184,8 +187,16 @@ public class CSVFileAvroUploader implements Callable<Integer> {
             producer.close();
 
             if (outputFile != null) {
-                try(FileWriter fileWriter = new FileWriter(outputFile)) {
-                    fileWriter.write(String.format("{ \"offset\": \"%d\" }", lastOffset));
+                try(BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+                    writer.write("{ \"offset\": {");
+                    writer.newLine();
+                    writer.write(
+                            lastOffset.entrySet().stream().
+                                    map(entry -> String.format("\"%d\" : \"%d\"", entry.getKey(), entry.getValue())).
+                                    collect(Collectors.joining(", "))
+                    );
+                    writer.newLine();
+                    writer.write("} }");
                 }
             }
         }catch (FileNotFoundException e) {

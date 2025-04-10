@@ -2,6 +2,8 @@ package io.confluent.bootcamp;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.AfterAll;
@@ -13,8 +15,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 import testcontainers.SchemaRegistryContainer;
 
-import java.io.*;
+import java.util.List;
+import java.util.Map;
 
+import java.io.*;
+import java.nio.file.Files;
+
+import static org.apache.kafka.clients.admin.AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CSVFileAvroUploaderFullTest {
@@ -50,9 +57,14 @@ class CSVFileAvroUploaderFullTest {
         uploader.namespace = "io.confluent.bootcamp.rails.schema";
         uploader.topic = "test-topic";
         uploader.inputFile = testFile.getAbsolutePath();
-        uploader.keyField = "canx_reason_code";
+        uploader.keyField = "toc_id";
         uploader.keyFieldProvided = true;
         uploader.outputFile = outputFile.getAbsolutePath();
+
+        var topic = new NewTopic(uploader.topic, 2, (short) 1);
+        try (var admin = AdminClient.create(Map.of(BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
+            admin.createTopics(List.of(topic));
+        }
 
         uploader.properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         uploader.properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -65,9 +77,9 @@ class CSVFileAvroUploaderFullTest {
             fail("Should never throw an exception");
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(outputFile))) {
-            String line = reader.readLine();
-            assertEquals("{ \"offset\": \"101\" }", line);
+        try {
+            String line = Files.readString(outputFile.toPath());
+            assertEquals("{ \"offset\": {\n\"0\" : \"51\", \"1\" : \"49\"\n} }", line);
         }
         catch (FileNotFoundException e) {
             fail("Cannot find outputFile " + outputFile);
