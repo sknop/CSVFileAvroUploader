@@ -193,10 +193,7 @@ public class CSVFileAvroUploader implements Callable<Integer> {
             System.exit(1);
         } catch (IOException e) {
             logger.error("Encountered IOException.",e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
-
     }
 
     String processHeader(String header) {
